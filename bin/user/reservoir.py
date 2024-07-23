@@ -3,6 +3,8 @@ import weewx.units
 from weewx.wxengine import StdService
 from weeutil.weeutil import to_bool
 
+weewx.units.obs_group_dict['lakeSurfaceLevel'] = 'group_altitude'
+
 VERSION = "0.1"
 
 import weeutil.logger
