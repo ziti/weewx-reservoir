@@ -4,6 +4,7 @@ from weewx.wxengine import StdService
 from weeutil.weeutil import to_bool
 
 weewx.units.obs_group_dict['lakeSurfaceLevel'] = 'group_altitude'
+weewx.units.obs_group_dict['lakePrecipitation'] = 'group_rain'
 
 VERSION = "0.1"
 
@@ -46,7 +47,7 @@ class Reservoir(StdService):
       new_record_data = {}
       try:
         new_record_data = {}
-        url = "https://waterservices.usgs.gov/nwis/iv/?sites=08063010&startDT=2024-07-16T09:33:17.845-05:00&endDT=2024-07-23T09:33:17.845-05:00&parameterCd=62614&format=rdb"
+        url = "https://waterservices.usgs.gov/nwis/iv/?sites=08063010&siteStatus=all&format=rdb"
         response = requests.get(url)
         if response.status_code == 200:
           data_lines = response.text.splitlines()
@@ -55,7 +56,8 @@ class Reservoir(StdService):
           if len(data_lines) >= 3:
             third_row = data_lines[2]
             parts = third_row.split("\t")
-            new_record_data['lakeSurfaceLevel'] = parts[4]
+            new_record_data['lakeSurfaceLevel'] = parts[12] # 140080_62614
+            new_record_data['lakePrecipitation'] = parts[9] # 140082_00045
             if 'usUnits' not in new_record_data:
               new_record_data['usUnits'] = self.unit_system
 
