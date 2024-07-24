@@ -22,7 +22,7 @@ def logerr(msg):
 weewx.units.obs_group_dict['lakeSurfaceLevel'] = 'group_altitude'
 weewx.units.obs_group_dict['lakePrecipitation'] = 'group_rain'
 
-VERSION = "0.2.0"
+VERSION = "1.0.0"
 loginf("version %s" % VERSION)
 logdbg("version %s" % VERSION)
 logerr("version %s" % VERSION)
