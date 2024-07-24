@@ -9,7 +9,7 @@ from io import StringIO
 import configobj
 from weecfg.extension import ExtensionInstaller
 
-VERSION = '0.1.0'
+VERSION = '0.2.0'
 
 reservoir_config = """
     [Reservoir]
@@ -19,8 +19,6 @@ reservoir_config = """
         # What unit system they will be in.
         # Choices are 'US', 'METRIC', or 'METRICWX'
         unit_system = US
-        # Poll interval in minutes
-        pollInterval = 15
 """
 
 reservoir_dict = configobj.ConfigObj(StringIO(reservoir_config))
