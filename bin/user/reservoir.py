@@ -47,11 +47,11 @@ class Reservoir(StdService):
       new_record_data = {}
       try:
         new_record_data = {}
-        url = 'https://waterservices.usgs.gov/nwis/iv/?sites={}}&siteStatus=all&format=rdb'.format(self.siteId)
-        loginf('Retreiving USGS Water data for site {}'.format(self.siteId))
+        url = f"https://waterservices.usgs.gov/nwis/iv/?sites={self.siteId}&siteStatus=all&format=rdb"
+        loginf(f"Retreiving USGS Water data for site {self.siteId}")
         logdbg('GET {}'.format(url))
         response = requests.get(url)
-        logdbg('Response {}'.format(response.status_code))
+        logdbg(f"Response {response.status_code}")
         if response.status_code == 200:
           data_lines = response.text.splitlines()
           data_lines = [line for line in data_lines if not line.startswith("#")]
