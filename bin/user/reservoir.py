@@ -6,7 +6,7 @@ from weeutil.weeutil import to_bool
 weewx.units.obs_group_dict['lakeSurfaceLevel'] = 'group_altitude'
 weewx.units.obs_group_dict['lakePrecipitation'] = 'group_rain'
 
-VERSION = "0.1"
+VERSION = "0.2.0"
 
 import weeutil.logger
 import logging
@@ -47,8 +47,11 @@ class Reservoir(StdService):
       new_record_data = {}
       try:
         new_record_data = {}
-        url = "https://waterservices.usgs.gov/nwis/iv/?sites=08063010&siteStatus=all&format=rdb"
+        url = 'https://waterservices.usgs.gov/nwis/iv/?sites={}}&siteStatus=all&format=rdb'.format(self.siteId)
+        loginf('Retreiving USGS Water data for site {}'.format(self.siteId))
+        logdbg('GET {}'.format(url))
         response = requests.get(url)
+        logdbg('Response {}'.format(response.status_code))
         if response.status_code == 200:
           data_lines = response.text.splitlines()
           data_lines = [line for line in data_lines if not line.startswith("#")]
@@ -64,9 +67,9 @@ class Reservoir(StdService):
             target_data = weewx.units.to_std_system(new_record_data, event.record['usUnits'])
             event.record.update(target_data)
           else:
-            print("Not enough data rows.")
+            logerr("Not enough data rows.")
         else:
-          print("Error downloading the file.")           
+          logerr("Error downloading the file.")           
 
       except IOError as e:
         logerr("Cannot open file. Reason: %s" % e)
