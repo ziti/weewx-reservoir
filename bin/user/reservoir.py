@@ -22,7 +22,7 @@ def logerr(msg):
 weewx.units.obs_group_dict['lakeSurfaceLevel'] = 'group_altitude'
 weewx.units.obs_group_dict['lakePrecipitation'] = 'group_rain'
 
-VERSION = "1.0.0"
+VERSION = "1.0.1"
 loginf("version %s" % VERSION)
 logdbg("version %s" % VERSION)
 logerr("version %s" % VERSION)
@@ -32,8 +32,6 @@ class Reservoir(StdService):
     def __init__(self, engine, config_dict):
       super(Reservoir, self).__init__(engine, config_dict)
       resevoir_dict = config_dict.get('Reservoir', {})
-
-      raise ValueError("oops")
 
       self.enable = to_bool(resevoir_dict.get('enable', True))
       if not self.enable:
@@ -53,11 +51,11 @@ class Reservoir(StdService):
       new_record_data = {}
       try:
         new_record_data = {}
-        url = f"https://waterservices.usgs.gov/nwis/iv/?sites={self.siteId}&siteStatus=all&format=rdb"
-        loginf(f"Retreiving USGS Water data for site {self.siteId}")
-        logdbg('GET {}'.format(url))
+        url = "https://waterservices.usgs.gov/nwis/iv/?sites=08063010&siteStatus=all&format=rdb"
+        #loginf("Retreiving USGS Water data for site {self.siteId}")
+        #logdbg('GET {}'.format(url))
         response = requests.get(url)
-        logdbg(f"Response {response.status_code}")
+        #logdbg(f"Response {response.status_code}")
         if response.status_code == 200:
           data_lines = response.text.splitlines()
           data_lines = [line for line in data_lines if not line.startswith("#")]
@@ -75,8 +73,8 @@ class Reservoir(StdService):
           else:
             logerr("Not enough data rows.")
         else:
-          logerr("Error downloading the file.")           
+          logerr("Error downloading the file.")
 
-      except IOError as e:
+      except Exception as e:
         logerr("Cannot open file. Reason: %s" % e)
 
