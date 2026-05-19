@@ -216,68 +216,68 @@ class TestReservoirNewArchiveRecord(unittest.TestCase):
         event.record = {'usUnits': 1, 'dateTime': 1700000000}
         return event
 
-    @patch('user.reservoir.requests.get')
-    def test_url_contains_configured_site_id(self, mock_get):
-        mock_get.return_value = MagicMock(status_code=200, text=SAMPLE_RDB)
+    @patch('user.reservoir.requests.Session')
+    def test_url_contains_configured_site_id(self, mock_session):
+        mock_session.return_value.get.return_value = MagicMock(status_code=200, text=SAMPLE_RDB)
         svc = self._make_service(site='99887766')
         svc.new_archive_record(self._make_event())
-        url_called = mock_get.call_args[0][0]
+        url_called = mock_session.return_value.get.call_args[0][0]
         self.assertIn('99887766', url_called)
 
-    @patch('user.reservoir.requests.get')
-    def test_request_includes_timeout(self, mock_get):
-        mock_get.return_value = MagicMock(status_code=200, text=SAMPLE_RDB)
+    @patch('user.reservoir.requests.Session')
+    def test_request_includes_timeout(self, mock_session):
+        mock_session.return_value.get.return_value = MagicMock(status_code=200, text=SAMPLE_RDB)
         svc = self._make_service()
         svc.new_archive_record(self._make_event())
-        _, kwargs = mock_get.call_args
+        _, kwargs = mock_session.return_value.get.call_args
         self.assertIn('timeout', kwargs)
 
-    @patch('user.reservoir.requests.get')
-    def test_record_updated_with_surface_level_and_precipitation(self, mock_get):
-        mock_get.return_value = MagicMock(status_code=200, text=SAMPLE_RDB)
+    @patch('user.reservoir.requests.Session')
+    def test_record_updated_with_surface_level_and_precipitation(self, mock_session):
+        mock_session.return_value.get.return_value = MagicMock(status_code=200, text=SAMPLE_RDB)
         svc = self._make_service()
         event = self._make_event()
         svc.new_archive_record(event)
         self.assertAlmostEqual(event.record['lakeSurfaceLevel'], 423.45)
         self.assertAlmostEqual(event.record['lakePrecipitation'], 0.12)
 
-    @patch('user.reservoir.requests.get')
-    def test_non_200_response_leaves_record_unchanged(self, mock_get):
-        mock_get.return_value = MagicMock(status_code=503)
+    @patch('user.reservoir.requests.Session')
+    def test_non_200_response_leaves_record_unchanged(self, mock_session):
+        mock_session.return_value.get.return_value = MagicMock(status_code=503)
         svc = self._make_service()
         event = self._make_event()
         original = dict(event.record)
         svc.new_archive_record(event)
         self.assertEqual(event.record, original)
 
-    @patch('user.reservoir.requests.get')
-    def test_network_error_does_not_propagate(self, mock_get):
-        mock_get.side_effect = ConnectionError("connection refused")
+    @patch('user.reservoir.requests.Session')
+    def test_network_error_does_not_propagate(self, mock_session):
+        mock_session.return_value.get.side_effect = ConnectionError("connection refused")
         svc = self._make_service()
         # Must not raise — WeeWX would crash if an unhandled exception escaped
         svc.new_archive_record(self._make_event())
 
-    @patch('user.reservoir.requests.get')
-    def test_no_recognised_params_leaves_record_unchanged(self, mock_get):
-        mock_get.return_value = MagicMock(status_code=200, text=SAMPLE_RDB_NO_PARAMS)
+    @patch('user.reservoir.requests.Session')
+    def test_no_recognised_params_leaves_record_unchanged(self, mock_session):
+        mock_session.return_value.get.return_value = MagicMock(status_code=200, text=SAMPLE_RDB_NO_PARAMS)
         svc = self._make_service()
         event = self._make_event()
         original = dict(event.record)
         svc.new_archive_record(event)
         self.assertEqual(event.record, original)
 
-    @patch('user.reservoir.requests.get')
-    def test_non_numeric_response_leaves_record_unchanged(self, mock_get):
-        mock_get.return_value = MagicMock(status_code=200, text=SAMPLE_RDB_NON_NUMERIC)
+    @patch('user.reservoir.requests.Session')
+    def test_non_numeric_response_leaves_record_unchanged(self, mock_session):
+        mock_session.return_value.get.return_value = MagicMock(status_code=200, text=SAMPLE_RDB_NON_NUMERIC)
         svc = self._make_service()
         event = self._make_event()
         original = dict(event.record)
         svc.new_archive_record(event)
         self.assertEqual(event.record, original)
 
-    @patch('user.reservoir.requests.get')
-    def test_partial_update_when_only_level_present(self, mock_get):
-        mock_get.return_value = MagicMock(status_code=200, text=SAMPLE_RDB_LEVEL_ONLY)
+    @patch('user.reservoir.requests.Session')
+    def test_partial_update_when_only_level_present(self, mock_session):
+        mock_session.return_value.get.return_value = MagicMock(status_code=200, text=SAMPLE_RDB_LEVEL_ONLY)
         svc = self._make_service()
         event = self._make_event()
         svc.new_archive_record(event)

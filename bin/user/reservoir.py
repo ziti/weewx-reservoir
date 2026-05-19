@@ -9,6 +9,8 @@ import logging
 
 log = logging.getLogger(__name__)
 
+USGS_URL = "https://waterservices.usgs.gov/nwis/iv/?sites=%s&siteStatus=all&format=rdb"
+
 def logdbg(msg):
     log.debug(msg)
 
@@ -21,7 +23,7 @@ def logerr(msg):
 weewx.units.obs_group_dict['lakeSurfaceLevel'] = 'group_altitude'
 weewx.units.obs_group_dict['lakePrecipitation'] = 'group_rain'
 
-VERSION = "1.0.1"
+VERSION = "1.0.3"
 loginf("version %s" % VERSION)
 
 
@@ -36,30 +38,43 @@ def parse_usgs_rdb(text):
     Returns a dict containing float values for any recognised parameters found.
     Raises ValueError if the response does not contain enough rows to parse.
     """
-    lines = [line for line in text.splitlines() if not line.startswith('#') and line.strip()]
-    if len(lines) < 3:
+    header_line = None
+    data_line = None
+    non_comment_idx = 0
+    for raw_line in text.splitlines():
+        if raw_line.startswith('#'):
+            continue
+        line = raw_line.strip()
+        if not line:
+            continue
+        if non_comment_idx == 0:
+            header_line = line
+        elif non_comment_idx == 2:
+            data_line = line
+            break
+        non_comment_idx += 1
+
+    if header_line is None or data_line is None:
         raise ValueError("USGS response does not contain enough data rows")
 
-    headers = lines[0].split('\t')
-    # lines[1] is the RDB format row (column widths/types); lines[2] is the first data row
-    data_parts = lines[2].split('\t')
-
-    def find_column(param_code):
-        for i, h in enumerate(headers):
-            if h.endswith('_' + param_code):
-                return i
-        return None
+    headers = header_line.split('\t')
+    data_parts = data_line.split('\t')
+    param_index = {}
+    for i, header in enumerate(headers):
+        if '_' in header:
+            param_code = header.rsplit('_', 1)[-1]
+            param_index[param_code] = i
 
     result = {}
 
-    level_idx = find_column('62614')
+    level_idx = param_index.get('62614')
     if level_idx is not None and level_idx < len(data_parts):
         try:
             result['lakeSurfaceLevel'] = float(data_parts[level_idx])
         except (ValueError, TypeError):
             logdbg("Non-numeric lake surface level value: %s" % data_parts[level_idx])
 
-    precip_idx = find_column('00045')
+    precip_idx = param_index.get('00045')
     if precip_idx is not None and precip_idx < len(data_parts):
         try:
             result['lakePrecipitation'] = float(data_parts[precip_idx])
@@ -88,15 +103,16 @@ class Reservoir(StdService):
         if unit_system_name not in weewx.units.unit_constants:
             raise ValueError("Reservoir: Unknown unit system: %s" % unit_system_name)
         self.unit_system = weewx.units.unit_constants[unit_system_name]
+        self.url = USGS_URL % self.site_id
+        self.http = requests.Session()
 
         self.bind(weewx.NEW_ARCHIVE_RECORD, self.new_archive_record)
 
     def new_archive_record(self, event):
         try:
-            url = "https://waterservices.usgs.gov/nwis/iv/?sites=%s&siteStatus=all&format=rdb" % self.site_id
-            loginf("Retrieving USGS water data for site %s" % self.site_id)
-            logdbg("GET %s" % url)
-            response = requests.get(url, timeout=10)
+            logdbg("Retrieving USGS water data for site %s" % self.site_id)
+            logdbg("GET %s" % self.url)
+            response = self.http.get(self.url, timeout=10)
             logdbg("Response %s" % response.status_code)
 
             if response.status_code == 200:
@@ -105,8 +121,11 @@ class Reservoir(StdService):
                     logerr("No recognised parameters found in USGS response for site %s" % self.site_id)
                     return
                 new_record_data['usUnits'] = self.unit_system
-                target_data = weewx.units.to_std_system(new_record_data, event.record['usUnits'])
-                event.record.update(target_data)
+                if self.unit_system == event.record['usUnits']:
+                    event.record.update(new_record_data)
+                else:
+                    target_data = weewx.units.to_std_system(new_record_data, event.record['usUnits'])
+                    event.record.update(target_data)
             else:
                 logerr("USGS request failed with HTTP %s for site %s" % (response.status_code, self.site_id))
 
