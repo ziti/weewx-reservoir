@@ -1,5 +1,5 @@
 #
-#    Copyright (c) 2019 Tom Keffer <tkeffer@gmail.com>
+#    Copyright (c) 2024 Zach Taffet
 #
 #    See the file LICENSE.txt for your full rights.
 #
@@ -19,6 +19,8 @@ reservoir_config = """
         # What unit system they will be in.
         # Choices are 'US', 'METRIC', or 'METRICWX'
         unit_system = US
+        # Set to false to disable the extension without uninstalling it
+        enable = true
 """
 
 reservoir_dict = configobj.ConfigObj(StringIO(reservoir_config))
