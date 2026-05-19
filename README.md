@@ -104,7 +104,9 @@ sudo systemctl restart weewx
 
 | Version | Notes |
 |---|---|
-| 1.0.1 | Current release |
+| 1.0.3 | Performance optimizations: HTTP session reuse, precomputed request URL, faster RDB parsing, and conversion bypass when units already match |
+| 1.0.2 | Adds unit tests and documentation |
+| 1.0.1 | Bug fixes |
 | 1.0.0 | Initial release |
 
 ## License
