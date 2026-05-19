@@ -5,10 +5,26 @@
 .project
 .pydevproject
 .settings
-*.pyc
-build
-dist
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+build/
+dist/
 MANIFEST
+*.egg-info/
+*.egg
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# pytest
+.pytest_cache/
+.coverage
+htmlcov/
 junk*
 *.sln
 *.user
