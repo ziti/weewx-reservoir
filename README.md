@@ -2,18 +2,20 @@
 
 A [WeeWX](https://weewx.com) extension that augments weather archive records with lake level and precipitation data from the [USGS Water Services Instantaneous Values API](https://waterservices.usgs.gov/).
 
-On each archive interval, the extension fetches the latest readings from a configured USGS monitoring site and adds them to the WeeWX record, making them available to skins, reports, and the database like any other observation.
+On each archive interval the extension supplies the latest reading from a configured USGS monitoring site and adds it to the WeeWX record, making it available to skins, reports, and the database like any other observation. The USGS feed is only fetched every `min_fetch_interval` seconds (the gauge itself updates every 15–60 minutes); in between, the last reading is reused.
 
 ## Observation Types Added
 
-| Field | WeeWX unit group | Description |
-|---|---|---|
-| `lakeSurfaceLevel` | `group_altitude` | Lake/reservoir surface elevation |
-| `lakePrecipitation` | `group_rain` | Precipitation recorded at the USGS gauge |
+| Field | WeeWX unit group | USGS parameter | Description |
+|---|---|---|---|
+| `lakeSurfaceLevel` | `group_altitude` | `62614` | Lake/reservoir water surface elevation |
+| `lakePrecipitation` | `group_rain` | `00045` | Precipitation recorded at the USGS gauge |
+
+> **Note on `lakePrecipitation`:** USGS parameter `00045` is labelled "Precipitation, total" and its meaning varies by site — it may be an interval total or a running daily total that resets at midnight. `group_rain` in WeeWX expects a per-interval amount. Check what your site actually reports before relying on aggregates like `$day.lakePrecipitation.sum`.
 
 ## Requirements
 
-- WeeWX 4.x or later
+- WeeWX 5.x (uses `weewx.engine`; `weectl`)
 - Python `requests` library (`pip install requests`)
 
 ## Installation
@@ -23,15 +25,20 @@ On each archive interval, the extension fetches the latest readings from a confi
 2. Run the WeeWX extension installer from the repository root:
 
     ```sh
-    wee_extension --install .
+    weectl extension install .
     ```
 
 3. Restart WeeWX:
 
     ```sh
     sudo systemctl restart weewx
-    # or, for sysV init:
-    sudo /etc/init.d/weewx restart
+    ```
+
+4. Add the two columns to your database (the installer does not touch the schema):
+
+    ```sh
+    weectl database add-column lakeSurfaceLevel --type REAL -y
+    weectl database add-column lakePrecipitation --type REAL -y
     ```
 
 The installer adds a `[Reservoir]` section to `weewx.conf` with defaults pre-filled and registers the service under `[Engine] > [[Services]] > data_services`.
@@ -45,12 +52,20 @@ After installation, edit `weewx.conf` and locate the `[Reservoir]` section:
     # USGS site ID — find yours at https://waterdata.usgs.gov/nwis/rt
     site = 08063010
 
-    # Unit system the USGS values are reported in.
-    # Choices: US, METRIC, or METRICWX
+    # Unit system the USGS values are reported in: US, METRIC, or METRICWX
     unit_system = US
 
     # Set to false to disable without uninstalling
     enable = true
+
+    # Seconds between USGS fetches; the reading is reused in between
+    min_fetch_interval = 900
+
+    # Skip a reading whose own timestamp is older than this (frozen feed)
+    max_reading_age = 3600
+
+    # HTTP request timeout, seconds
+    timeout = 10
 ```
 
 ### Finding Your USGS Site ID
@@ -61,42 +76,40 @@ After installation, edit `weewx.conf` and locate the `[Reservoir]` section:
 
 ## Displaying Data in Skins
 
-Once the extension is running, `lakeSurfaceLevel` and `lakePrecipitation` are available as standard WeeWX observations. Example Cheetah template tags:
+`lakeSurfaceLevel` and `lakePrecipitation` are available as standard WeeWX observations. Example Cheetah template tags:
 
 ```
 Current lake level: $current.lakeSurfaceLevel
-Today's gauge precipitation: $day.lakePrecipitation.sum
+```
+
+For `$day.*` / `$week.*` aggregates the observation also needs a daily-summary table:
+
+```sh
+weectl database rebuild-daily --date=YYYY-mm-dd   # or a range; slow on a large DB
 ```
 
 ## Development & Testing
 
-The test suite runs without a WeeWX installation. All WeeWX modules are stubbed at import time, so only `pytest` and `requests` are needed.
-
-### Setup
+The test suite runs without a WeeWX installation — all WeeWX modules are stubbed at import time.
 
 ```sh
 python3 -m venv .venv
 .venv/bin/pip install pytest requests
-```
-
-### Running the tests
-
-```sh
 .venv/bin/pytest tests/ -v
+# or, with no extra deps:
+python3 -m unittest discover -s tests
 ```
 
-Tests are organised into three classes in [tests/test_reservoir.py](tests/test_reservoir.py):
-
-| Class | What it covers |
+| Class | Covers |
 |---|---|
-| `TestParseUsgsRdb` | RDB response parsing: correct values, float casting, non-numeric sentinels (`Ice`, `Eqp`), missing columns, malformed responses |
-| `TestReservoirInit` | Service initialisation: config key reading, missing site, invalid unit system, enable/disable |
-| `TestReservoirNewArchiveRecord` | Live fetch path: URL contains site ID, record updated, non-200 responses, network errors, timeout argument |
+| `TestParseUsgsRdb` | RDB parsing: values by parameter-code column, newest data row, reading timestamp, float casting, non-numeric sentinels (`Ice`, `Eqp`), missing columns, malformed responses |
+| `TestReservoirInit` | Config reading (incl. the `enabled` alias and overridable intervals), missing site, invalid unit system, enable/disable |
+| `TestReservoirNewArchiveRecord` | Fetch path: request targets the configured site with a timeout, record update, HTTP/network errors, response caching, cache fallback on error, stale-reading skip |
 
 ## Uninstall
 
 ```sh
-wee_extension --uninstall reservoir
+weectl extension uninstall reservoir
 sudo systemctl restart weewx
 ```
 
@@ -104,7 +117,8 @@ sudo systemctl restart weewx
 
 | Version | Notes |
 |---|---|
-| 1.0.3 | Performance optimizations: HTTP session reuse, precomputed request URL, faster RDB parsing, and conversion bypass when units already match |
+| 1.1.0 | Response caching (`min_fetch_interval`), stale-feed guard (`max_reading_age`), configurable `timeout`; use newest RDB data row and parse its timestamp; `weewx.engine` import; narrower exception handling with tracebacks for unexpected errors; accept the `enabled` config alias; `params=` request building; `shutDown()` closes the HTTP session |
+| 1.0.3 | Performance: HTTP session reuse, precomputed request URL, faster RDB parsing, conversion bypass when units already match |
 | 1.0.2 | Adds unit tests and documentation |
 | 1.0.1 | Bug fixes |
 | 1.0.0 | Initial release |
