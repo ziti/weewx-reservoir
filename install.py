@@ -9,18 +9,22 @@ from io import StringIO
 import configobj
 from weecfg.extension import ExtensionInstaller
 
-VERSION = '1.0.3'
+VERSION = '1.1.0'
 
 reservoir_config = """
     [Reservoir]
-        # https://waterservices.usgs.gov/nwis/iv/?sites=08063010&siteStatus=all&format=rdb
-        # Site ID from the USGS website:
+        # USGS site ID -- find yours at https://waterdata.usgs.gov/nwis/rt
         site = 08063010
-        # What unit system they will be in.
-        # Choices are 'US', 'METRIC', or 'METRICWX'
+        # Unit system the USGS values are reported in: US, METRIC, or METRICWX
         unit_system = US
         # Set to false to disable the extension without uninstalling it
         enable = true
+        # Seconds between USGS fetches; readings are reused in between
+        min_fetch_interval = 900
+        # Skip a reading whose own timestamp is older than this many seconds
+        max_reading_age = 3600
+        # HTTP request timeout, seconds
+        timeout = 10
 """
 
 reservoir_dict = configobj.ConfigObj(StringIO(reservoir_config))
