@@ -19,11 +19,10 @@ from collections import namedtuple
 from datetime import datetime, timedelta, timezone
 
 import requests
-
 import weewx
 import weewx.units
-from weewx.engine import StdService
 from weeutil.weeutil import to_bool, to_int
+from weewx.engine import StdService
 
 log = logging.getLogger(__name__)
 
