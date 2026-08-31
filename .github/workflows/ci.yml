@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements-dev.txt
+      - name: ruff
+        run: ruff check --output-format=github .
+      - name: byte-compile
+        run: python -m compileall -q bin install.py
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.11", "3.13"]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: pip install -r requirements-dev.txt
+      - name: pytest
+        run: pytest -q
+
+  integration:
+    # Import the extension against a real WeeWX, no stubs.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - run: pip install weewx requests
+      - name: import check
+        run: |
+          python - <<'PY'
+          import sys
+          sys.path.insert(0, "bin")
+          import weewx
+          import weewx.engine
+          import weewx.units
+          import user.reservoir as r
+          assert issubclass(r.Reservoir, weewx.engine.StdService)
+          assert isinstance(r.VERSION, str) and r.VERSION
+          assert weewx.units.obs_group_dict["lakeSurfaceLevel"] == "group_altitude"
+          assert weewx.units.obs_group_dict["lakePrecipitation"] == "group_rain"
+          reading = r.parse_usgs_rdb(
+              "# c\n"
+              "agency_cd\tsite_no\tdatetime\ttz_cd\t140080_62614\t140080_62614_cd\n"
+              "5s\t15s\t20d\t6s\t14n\t10s\n"
+              "USGS\t08063010\t2024-01-15 10:30\tCST\t423.45\tA\n"
+          )
+          assert reading.values["lakeSurfaceLevel"] == 423.45
+          print("OK: weewx", weewx.__version__, "reservoir", r.VERSION)
+          PY
