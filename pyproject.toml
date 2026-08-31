@@ -1,0 +1,24 @@
+# Tooling config only. This repo is a WeeWX extension installed with
+# `weectl extension install`, not a pip package.
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM"]
+ignore = [
+    # printf-style strings match the surrounding WeeWX codebase style and
+    # keep logger calls cheap when the level is disabled.
+    "UP031",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["E501"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["user"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"

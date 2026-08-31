@@ -21,8 +21,10 @@ MANIFEST
 venv/
 env/
 
-# pytest
+# Tooling caches
 .pytest_cache/
+.ruff_cache/
+.mypy_cache/
 .coverage
 htmlcov/
 junk*

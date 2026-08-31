@@ -1,0 +1,80 @@
+name: Bug report
+description: Something isn't working
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. Please work through the checklist first — a lot
+        of "no data" cases turn out to be the USGS site, the parameter codes,
+        or a frozen feed rather than the extension.
+
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Before filing
+      options:
+        - label: I'm on WeeWX 5.x and the latest release of this extension.
+          required: true
+        - label: >
+            I fetched the feed directly
+            (`waterservices.usgs.gov/nwis/iv/?sites=<site>&siteStatus=all&format=rdb`)
+            and it returns a recent row for the parameter I expect.
+          required: true
+        - label: I ran an archive cycle with `debug = 1` and read the WeeWX log.
+          required: true
+        - label: I searched existing issues and didn't find this.
+          required: true
+
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      description: Extension version, WeeWX version, OS + version.
+      placeholder: "reservoir 1.1.0, WeeWX 5.1.0, Debian 12"
+    validations:
+      required: true
+
+  - type: input
+    id: site
+    attributes:
+      label: USGS site ID
+      description: The `site` value from your `[Reservoir]` section.
+      placeholder: "08063010"
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you expected, and what actually happened.
+    validations:
+      required: true
+
+  - type: textarea
+    id: config
+    attributes:
+      label: Configuration
+      description: Your `[Reservoir]` section from `weewx.conf`.
+      render: ini
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Log output
+      description: Relevant WeeWX log lines with `debug = 1` set.
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: rdb
+    attributes:
+      label: Raw USGS response (optional)
+      description: >
+        The first few lines of the RDB response for your site, if the problem
+        looks like a parsing issue.
+      render: text
