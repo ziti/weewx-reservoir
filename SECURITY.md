@@ -14,11 +14,11 @@ against the **latest release** only. Please upgrade before reporting.
 
 Please **do not open a public issue** for security problems.
 
-Report privately by one of:
-
-- [GitHub private vulnerability reporting](https://github.com/ziti/weewx-reservoir/security/advisories/new)
-  (Security → Report a vulnerability), or
-- email **152570+ziti@users.noreply.github.com** with the details.
+Report privately through
+[GitHub private vulnerability reporting](https://github.com/ziti/weewx-reservoir/security/advisories/new)
+— on the repository, open the **Security** tab and choose
+**Report a vulnerability**. This keeps the report and the discussion private
+until a fix ships.
 
 Please include:
 

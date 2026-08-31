@@ -59,8 +59,11 @@ representative at an online or offline event.
 ## Enforcement
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
-reported to the community leaders responsible for enforcement at
-**152570+ziti@users.noreply.github.com**.
+reported to the project maintainer, [@ziti](https://github.com/ziti). If you
+need a private channel, open a
+[GitHub security advisory](https://github.com/ziti/weewx-reservoir/security/advisories/new)
+on this repository — it is not limited to security reports and stays
+confidential.
 
 All complaints will be reviewed and investigated promptly and fairly.
 

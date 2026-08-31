@@ -1,25 +1,12 @@
-*~
-!/.idea
-/.idea/*
-!/.idea/codeStyles
-.project
-.pydevproject
-.settings
-__pycache__/
+# Python
 *.py[cod]
-*.pyo
-*.pyd
-build/
-dist/
-MANIFEST
+__pycache__/
 *.egg-info/
 *.egg
 .eggs/
-
-# Virtual environments
-.venv/
-venv/
-env/
+build/
+dist/
+MANIFEST
 
 # Tooling caches
 .pytest_cache/
@@ -27,10 +14,15 @@ env/
 .mypy_cache/
 .coverage
 htmlcov/
-junk*
-*.sln
-*.user
-*.pyproj
-*.suo
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Editors / OS
+*~
+*.swp
 .DS_Store
-*.config
+.idea/
+.vscode/
