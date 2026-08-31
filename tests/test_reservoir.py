@@ -65,7 +65,6 @@ _make_weewx_stubs()
 sys.path.insert(0, 'bin')
 from user.reservoir import Reservoir, parse_usgs_rdb  # noqa: E402
 
-
 # ---------------------------------------------------------------------------
 # Sample USGS RDB responses
 # ---------------------------------------------------------------------------
