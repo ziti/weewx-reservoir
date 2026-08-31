@@ -1,7 +1,7 @@
 #
 #    Copyright (c) 2024 Zach Taffet
 #
-#    See the file LICENSE.txt for your full rights.
+#    See the file LICENSE for your full rights (GNU GPL v3).
 #
 """Installer for Reservoir"""
 from io import StringIO
@@ -34,7 +34,7 @@ def loader():
 
 class ReservoirInstaller(ExtensionInstaller):
     def __init__(self):
-        super(ReservoirInstaller, self).__init__(
+        super().__init__(
             version=VERSION,
             name='reservoir',
             description='Augment WeeWX records with data from USGS Water Services API',

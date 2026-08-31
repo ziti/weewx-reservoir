@@ -1,5 +1,9 @@
 # weewx-reservoir
 
+[![CI](https://github.com/ziti/weewx-reservoir/actions/workflows/ci.yml/badge.svg)](https://github.com/ziti/weewx-reservoir/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/ziti/weewx-reservoir?sort=semver)](https://github.com/ziti/weewx-reservoir/releases)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
+
 A [WeeWX](https://weewx.com) extension that augments weather archive records with lake level and precipitation data from the [USGS Water Services Instantaneous Values API](https://waterservices.usgs.gov/).
 
 On each archive interval the extension supplies the latest reading from a configured USGS monitoring site and adds it to the WeeWX record, making it available to skins, reports, and the database like any other observation. The USGS feed is only fetched every `min_fetch_interval` seconds (the gauge itself updates every 15–60 minutes); in between, the last reading is reused.
@@ -115,6 +119,8 @@ sudo systemctl restart weewx
 
 ## Version History
 
+See [CHANGELOG.md](CHANGELOG.md) for the full history. Recent releases:
+
 | Version | Notes |
 |---|---|
 | 1.1.0 | Response caching (`min_fetch_interval`), stale-feed guard (`max_reading_age`), configurable `timeout`; use newest RDB data row and parse its timestamp; `weewx.engine` import; narrower exception handling with tracebacks for unexpected errors; accept the `enabled` config alias; `params=` request building; `shutDown()` closes the HTTP session |
@@ -123,6 +129,16 @@ sudo systemctl restart weewx
 | 1.0.1 | Bug fixes |
 | 1.0.0 | Initial release |
 
+## Contributing
+
+Bug reports and pull requests are welcome. Please read
+[CONTRIBUTING.md](CONTRIBUTING.md) first — it covers the coding standard,
+commit-message convention, and what a good PR looks like. All participation is
+governed by the [Code of Conduct](CODE_OF_CONDUCT.md).
+
+Security issues: see [SECURITY.md](SECURITY.md).
+
 ## License
 
-See [LICENSE.txt](LICENSE.txt).
+Distributed under the terms of the **GNU General Public License v3.0**. See
+[LICENSE](LICENSE).

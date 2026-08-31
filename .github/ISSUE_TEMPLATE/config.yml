@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: WeeWX user group
+    url: https://groups.google.com/g/weewx-user
+    about: General WeeWX setup questions that aren't specific to this extension.
+  - name: Question / discussion
+    url: https://github.com/ziti/weewx-reservoir/discussions
+    about: Usage questions and ideas that aren't yet a bug or feature request.

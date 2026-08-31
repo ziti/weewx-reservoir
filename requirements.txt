@@ -1,0 +1,3 @@
+# Runtime dependency. WeeWX itself is provided by your WeeWX 5.x install and is
+# not listed here.
+requests>=2.25
