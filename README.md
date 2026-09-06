@@ -24,28 +24,26 @@ On each archive interval the extension supplies the latest reading from a config
 
 ## Installation
 
-1. Download or clone this repository.
+Install the latest release with `weectl`:
 
-2. Run the WeeWX extension installer from the repository root:
+```sh
+weectl extension install https://github.com/ziti/weewx-reservoir/releases/latest/download/weewx-reservoir.zip
+```
 
-    ```sh
-    weectl extension install .
-    ```
+Restart WeeWX:
 
-3. Restart WeeWX:
+```sh
+sudo systemctl restart weewx
+```
 
-    ```sh
-    sudo systemctl restart weewx
-    ```
+Add the observation columns to your WeeWX database:
 
-4. Add the two columns to your database (the installer does not touch the schema):
+```sh
+weectl database add-column lakeSurfaceLevel --type REAL -y
+weectl database add-column lakePrecipitation --type REAL -y
+```
 
-    ```sh
-    weectl database add-column lakeSurfaceLevel --type REAL -y
-    weectl database add-column lakePrecipitation --type REAL -y
-    ```
-
-The installer adds a `[Reservoir]` section to `weewx.conf` with defaults pre-filled and registers the service under `[Engine] > [[Services]] > data_services`.
+The installer adds a `[Reservoir]` section to `weewx.conf` and registers the extension as a WeeWX data service.
 
 ## Configuration
 
