@@ -8,6 +8,17 @@ A [WeeWX](https://weewx.com) extension that augments weather archive records wit
 
 On each archive interval the extension supplies the latest reading from a configured USGS monitoring site and adds it to the WeeWX record, making it available to skins, reports, and the database like any other observation. The USGS feed is only fetched every `min_fetch_interval` seconds (the gauge itself updates every 15–60 minutes); in between, the last reading is reused.
 
+## How It Works
+
+`weewx-reservoir` runs as a WeeWX data service. On each archive interval it:
+
+1. Retrieves the latest observation from a configured USGS monitoring site.
+2. Caches the response to avoid unnecessary requests to the USGS API.
+3. Adds the reservoir observations to the current WeeWX archive record.
+4. Stores them alongside normal weather observations for use by skins, reports, graphs, and historical queries.
+
+The extension currently supports reservoir surface elevation and precipitation observations exposed by the configured USGS site.
+
 ## Observation Types Added
 
 | Field | WeeWX unit group | USGS parameter | Description |
