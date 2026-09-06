@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/logo.png" alt="weewx-reservoir logo" width="240">
+</p>
+
 # weewx-reservoir
 
 [![CI](https://github.com/ziti/weewx-reservoir/actions/workflows/ci.yml/badge.svg)](https://github.com/ziti/weewx-reservoir/actions/workflows/ci.yml)
