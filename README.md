@@ -87,6 +87,8 @@ After installation, edit `weewx.conf` and locate the `[Reservoir]` section:
 2. Select your state and the parameter types you want (e.g. "Lake/Res. Elevation" and "Precipitation").
 3. The site ID is the numeric code shown in the URL or results table (e.g. `08063010`).
 
+> Your selected USGS site must publish parameter 62614 for reservoir elevation and/or 00045 for precipitation. Sites that do not publish a supported parameter simply will not populate that observation.
+
 ## Displaying Data in Skins
 
 `lakeSurfaceLevel` and `lakePrecipitation` are available as standard WeeWX observations. Example Cheetah template tags:
@@ -132,9 +134,9 @@ See [CHANGELOG.md](CHANGELOG.md) for the full history. Recent releases:
 
 | Version | Notes |
 |---|---|
-| 1.1.0 | Response caching (`min_fetch_interval`), stale-feed guard (`max_reading_age`), configurable `timeout`; use newest RDB data row and parse its timestamp; `weewx.engine` import; narrower exception handling with tracebacks for unexpected errors; accept the `enabled` config alias; `params=` request building; `shutDown()` closes the HTTP session |
-| 1.0.3 | Performance: HTTP session reuse, precomputed request URL, faster RDB parsing, conversion bypass when units already match |
-| 1.0.2 | Adds unit tests and documentation |
+| 1.1.0 | Response caching, stale-reading detection, configurable timeouts, and improved USGS parsing |
+| 1.0.3 | HTTP and parsing performance improvements |
+| 1.0.2 | Unit tests and documentation |
 | 1.0.1 | Bug fixes |
 | 1.0.0 | Initial release |
 
