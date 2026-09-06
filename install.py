@@ -37,7 +37,7 @@ class ReservoirInstaller(ExtensionInstaller):
         super().__init__(
             version=VERSION,
             name='reservoir',
-            description='Augment WeeWX records with data from USGS Water Services API',
+            description='Add USGS reservoir level and precipitation data to WeeWX archive records',
             author="Zach Taffet",
             author_email="152570+ziti@users.noreply.github.com",
             data_services='user.reservoir.Reservoir',
